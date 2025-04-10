@@ -1,0 +1,286 @@
+/*Group Members:
+1: Abdullah Fayaz(FA24-BSE-006):
+(worked on loadStudentsFromFile, addStudent and displayStudents functions)
+2: Ahmed Ashfaq(FA24-BSE-141):
+(worked on removeStudent, searchStudent and sortStudentsByGrade functions)
+3: Muhammad Munawar Hasham(FA24-BSE-084):
+(worked on saveStudentsToFile, sortStudentsByRollNo and filterStudentsByGrade functions)
+4: Shahab Hassan(FA24-BSE-144):
+(worked on displayTopAndLowestGradeStudents, updateStudent and filterStudentsByGrade functions)*/
+
+#include<iostream>
+#include<fstream>
+#include<string>
+
+using namespace std;
+
+struct Student {
+    string name;
+    int age;
+    float grade;
+    int rollNo;
+};
+
+const int MAX_STUDENTS = 100;
+Student students[MAX_STUDENTS];
+int studentCount = 0;
+
+const string FILE_NAME = "students.txt";
+/ABDULLAH/
+void loadStudentsFromFile();
+void displayStudents();
+void addStudent();
+/AHMED/
+void removeStudent();
+void searchStudent();
+void sortStudentsByGrade();
+/HASHAM/
+void sortStudentsByRollNo();
+void filterStudentsByGrade();
+void saveStudentsToFile();
+/SHAHAB/
+void sortStudentsByName();
+void displayTopAndLowestGradeStudents();
+void updateStudent();
+
+int main() {
+    loadStudentsFromFile();
+
+    int choice;
+    do {
+        cout << "\n===== Student Database Management System =====" << endl;
+        cout << "1. Add Student" << endl;
+        cout << "2. Remove Student" << endl;
+        cout << "3. Search Student" << endl;
+        cout << "4. Display Student List" << endl;
+        cout << "5. Update Student" << endl;
+        cout << "6. Sort Students By Roll Number" << endl;
+        cout << "7. Sort Students By Grade" << endl;
+        cout << "8. Sort Students By Name" << endl;
+        cout << "9. Display Top and Lowest Grade Students" << endl;
+        cout << "10. Filter Students By Grade" << endl;
+        cout << "0. Exit" << endl;
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+       
+
+        cin.ignore();
+
+        switch (choice) {
+        case 1: addStudent(); break;
+        case 2: removeStudent(); break;
+        case 3: searchStudent(); break;
+        case 4: displayStudents(); break;
+        case 5: updateStudent(); break;
+        case 6: sortStudentsByRollNo(); break;
+        case 7: sortStudentsByGrade(); break;
+        case 8: sortStudentsByName(); break;
+        case 9: displayTopAndLowestGradeStudents(); break;
+        case 10: filterStudentsByGrade(); break;
+        case 0: cout << "Exiting program and saving data..." << endl; break;
+        default: cout << "Invalid choice. Please try again." << endl;
+        }
+    } while (choice != 0);
+
+    saveStudentsToFile();
+    return 0;
+}
+
+void loadStudentsFromFile() {
+    ifstream file(FILE_NAME);
+    if (!file) {
+        cout << "No existing data found. Starting fresh." << endl;
+        return;
+    }
+
+    studentCount = 0;
+    while (file >> students[studentCount].name >> students[studentCount].age >> students[studentCount].grade >> students[studentCount].rollNo) {
+        studentCount++;
+        if (studentCount >= MAX_STUDENTS) break;
+    }
+
+    file.close();
+    cout << "Loaded " << studentCount << " students from the file." << endl;
+}
+
+void saveStudentsToFile() {
+    ofstream file(FILE_NAME);
+    for (int i = 0; i < studentCount; ++i) {
+        file << students[i].name << " " << students[i].age << " " << students[i].grade << " " << students[i].rollNo << endl;
+    }
+    file.close();
+    cout << "Data saved to the file successfully." << endl;
+}
+
+void addStudent() {
+    if (studentCount >= MAX_STUDENTS) {
+        cout << "Database is full. Cannot add more students." << endl;
+        return;
+    }
+
+    Student newStudent;
+    cout << "Enter student's name: ";
+    getline(cin, newStudent.name);
+    cout << "Enter student's age: ";
+    cin >> newStudent.age;
+    cout << "Enter student's grade(1-10): ";
+    cin >> newStudent.grade;
+    cout << "Enter student's roll number: ";
+    cin >> newStudent.rollNo;
+    cin.ignore();
+
+    students[studentCount++] = newStudent;
+    cout << "Student added successfully." << endl;
+
+    saveStudentsToFile();
+}
+
+void removeStudent() {
+    string nameToRemove;
+    cout << "Enter the name of the student to remove: ";
+    getline(cin, nameToRemove);
+
+    for (int i = 0; i < studentCount; ++i) {
+        if (students[i].name == nameToRemove) {
+            for (int j = i; j < studentCount - 1; ++j) {
+                students[j] = students[j + 1];
+            }
+            --studentCount;
+            cout << "Student removed successfully." << endl;
+
+            saveStudentsToFile();
+            return;
+        }
+    }
+
+    cout << "Student not found." << endl;
+}
+
+void searchStudent() {
+    string nameToSearch;
+    cout << "Enter the name of the student to search: ";
+    getline(cin, nameToSearch);
+
+    for (int i = 0; i < studentCount; ++i) {
+        if (students[i].name == nameToSearch) {
+            cout << "Name: " << students[i].name << ", Age: " << students[i].age << ", Grade: " << students[i].grade << ", Roll Number: " << students[i].rollNo << endl;
+            return;
+        }
+    }
+
+    cout << "Student not found." << endl;
+}
+
+void displayStudents() {
+    if (studentCount == 0) {
+        cout << "No students to display." << endl;
+        return;
+    }
+
+    cout << "\nStudent List:" << endl;
+    for (int i = 0; i < studentCount; ++i) {
+        cout << i + 1 << ". Name: " << students[i].name << ", Age: " << students[i].age << ", Grade: " << students[i].grade << ", Roll Number: " << students[i].rollNo << endl;
+    }
+}
+
+void sortStudentsByRollNo() {
+    for (int i = 0; i < studentCount - 1; ++i) {
+        for (int j = 0; j < studentCount - i - 1; ++j) {
+            if (students[j].rollNo > students[j + 1].rollNo) {
+                Student temp = students[j];
+                students[j] = students[j + 1];
+                students[j + 1] = temp;
+            }
+        }
+    }
+    cout << "Students sorted by roll number." << endl;
+}
+
+void sortStudentsByGrade() {
+    for (int i = 0; i < studentCount - 1; ++i) {
+        for (int j = 0; j < studentCount - i - 1; ++j) {
+            if (students[j].grade < students[j + 1].grade) {
+                Student temp = students[j];
+                students[j] = students[j + 1];
+                students[j + 1] = temp;
+            }
+        }
+    }
+    cout << "Students sorted by grade in descending order." << endl;
+}
+
+void sortStudentsByName() {
+    for (int i = 0; i < studentCount - 1; ++i) {
+        for (int j = 0; j < studentCount - i - 1; ++j) {
+            if (students[j].name > students[j + 1].name) {
+                Student temp = students[j];
+                students[j] = students[j + 1];
+                students[j + 1] = temp;
+            }
+        }
+    }
+    cout << "Students sorted by name." << endl;
+}
+
+void displayTopAndLowestGradeStudents() {
+    if (studentCount == 0) {
+        cout << "No students to display." << endl;
+        return;
+    }
+
+    int topIndex = 0, lowestIndex = 0;
+    for (int i = 1; i < studentCount; ++i) {
+        if (students[i].grade > students[topIndex].grade) {
+            topIndex = i;
+        }
+        if (students[i].grade < students[lowestIndex].grade) {
+            lowestIndex = i;
+        }
+    }
+
+    cout << "Top Student: " << students[topIndex].name << " with grade: " << students[topIndex].grade << " and Roll No: " << students[topIndex].rollNo << endl;
+    cout << "Lowest Grade Student: " << students[lowestIndex].name << " with grade: " << students[lowestIndex].grade << " and Roll No: " << students[lowestIndex].rollNo << endl;
+}
+
+void filterStudentsByGrade() {
+    float minGrade, maxGrade;
+    cout << "Enter minimum grade: ";
+    cin >> minGrade;
+    cout << "Enter maximum grade: ";
+    cin >> maxGrade;
+    cin.ignore();
+
+    cout << "Students within the grade range:" << endl;
+    for (int i = 0; i < studentCount; ++i) {
+        if (students[i].grade >= minGrade && students[i].grade <= maxGrade) {
+            cout << "Name: " << students[i].name << ", Grade: " << students[i].grade << ", Roll Number: " << students[i].rollNo << endl;
+        }
+    }
+}
+void updateStudent() {
+    int rollNoToUpdate;
+    cout << "Enter the roll number of the student to update: ";
+    cin >> rollNoToUpdate;
+    cin.ignore();
+
+    for (int i = 0; i < studentCount; ++i) {
+        if (students[i].rollNo == rollNoToUpdate) {
+            cout << "Updating details for Roll No: " << rollNoToUpdate << endl;
+            cout << "Enter new name (current: " << students[i].name << "): ";
+            getline(cin, students[i].name);
+            cout << "Enter new age (current: " << students[i].age << "): ";
+            cin >> students[i].age;
+            cout << "Enter new grade (current: " << students[i].grade << "): ";
+            cin >> students[i].grade;
+            cin.ignore();
+
+            cout << "Student details updated successfully." << endl;
+
+            saveStudentsToFile();
+            return;
+        }
+    }
+
+    cout << "Student with Roll No " << rollNoToUpdate << " not found." << endl;
+}
